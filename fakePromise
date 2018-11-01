@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<script>
+    class fakePromise {
+        constructor(callback) {
+            this._queue = [];
+            this._suc_res = null;
+            this._erro_res = null;
+            this.status = '';
+            callback((...arg) => {
+                this._suc_res = arg;
+                this.status = 'suc';
+                this._queue.forEach(obj => {
+                    obj.fn1(...arg)
+                })
+            }, (...arg) => {
+                this._erro_res = arg;
+                this.status = 'err';
+                this._queue.forEach(obj => {
+                    obj.fn2(...arg)
+                })
+            })
+        }
+        then(fn1, fn2) {
+            if(this.status ===  'suc') {
+                fn1(...this._suc_res);
+            }else if(this.status ===  'err'){
+                fn2(...this._erro_res);
+            }else {
+                this._queue.push({fn1, fn2}) 
+            }
+        }
+    }
+    let p = new fakePromise((resolve, reject) => {
+        setTimeout(() => {
+            resolve(3)
+        }, 3000)
+    })
+    p.then(num => {alert(num)})
+</script>
+<body>
+    
+</body>
+</html>
